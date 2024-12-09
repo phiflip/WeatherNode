@@ -36,7 +36,7 @@ uint8_t appSKey[16] = {0};
 uint32_t devAddr = 0;
 
 /* Transmission duty cycle in milliseconds */
-uint32_t appTxDutyCycle = (30 * 1000);  // 30 seconds
+uint32_t appTxDutyCycle = (300 * 1000);  // 30 seconds
 
 /* LoRaWAN Channel Mask (default channels 0-7) */
 uint16_t userChannelsMask[6] = { 0x00FF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };

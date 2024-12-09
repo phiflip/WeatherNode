@@ -13,6 +13,8 @@ This document lists all the hardware components required to build the WeatherNod
 
 2. **Sensors**
    - BME680 Sensor
+	- TFA Dostmann 30.3801.02 Windmesser
+	- TFA Dostmann 30.3252.01 Regenmesser
    
 
 3. **Enclosures**
@@ -31,7 +33,7 @@ This document lists all the hardware components required to build the WeatherNod
 
 ## Estimated Cost
 
-- Total: Approx. 75.- CHF per kit (excluding VAT)
+- Total: Approx. 100.- CHF per kit (excluding VAT)
 - Suggested Suppliers:
   - bastelgarage.ch
   - conrad.ch

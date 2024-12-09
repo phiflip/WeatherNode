@@ -1,3 +1,6 @@
+# User defined stuff
+scripts/OTAA_Params_for_WeatherNode_testing-rain-gauge.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
