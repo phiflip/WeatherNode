@@ -1,127 +1,231 @@
 #include "LoRaWan_APP.h"
 #include "Arduino.h"
+#include "innerWdt.h"  // Inner Watchdog
+
+//----------------------------------------------------------------
+// BME680 Sensor Library
+#include "BME680.h"
+#include <Wire.h>
+
+// Define GPIO5 as the interrupt pin for the rain gauge
+#define Rain_PIN GPIO5
+// Define GPIO3 as the interrupt pin for wind speed measurement
+#define Speed_PIN GPIO3
+
+// Create an instance for the BME680 sensor
+BME680_Class BME680;
+//----------------------------------------------------------------
 
 /*
- * LoRaWAN RGB LED Indicators:
- * - Red: Sending data
- * - Purple: Join successful
- * - Blue: RxWindow1 (receiving)
- * - Yellow: RxWindow2 (receiving)
- * - Green: Data received
- */
+   LoRaWAN RGB status indicators:
+   - Red: sending
+   - Purple: joined successfully
+   - Blue: RxWindow1
+   - Yellow: RxWindow2
+   - Green: data received
+*/
 
-/* OTAA (Over-The-Air Activation) parameters */
-uint8_t appEui[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};   // Application EUI
-uint8_t devEui[] = { 0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x05, 0x**, 0x** };  // Device EUI
-uint8_t appKey[] = { 0xF2, 0x2D, 0xF6, 0x49, 0x6E, 0x88, 0xA0, 0x94, 0x60, 0xAD, 0x0F, 0x4E, 0xA9, 0xD1, 0x**, 0x** }; // Application Key
+/* OTAA Parameters */
+uint8_t appEui[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+uint8_t devEui[] = { 0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x06, 0xA6, 0x6F };
+uint8_t appKey[] = { 0xDE, 0x74, 0xAE, 0x44, 0x56, 0x1F, 0xF4, 0x8A, 0xD2, 0x45, 0x0E, 0x87, 0x8C, 0xA0, 0x24, 0x41 };
 
-/* ABP (Activation By Personalization) parameters */
-uint8_t nwkSKey[] = { 0x15, 0xb1, 0xd0, 0xef, 0xa4, 0x63, 0xdf, 0xbe, 0x3d, 0x11, 0x18, 0x1e, 0x1e, 0xc7, 0xda,0x00 }; // Network Session Key
-uint8_t appSKey[] = { 0xd7, 0x2c, 0x78, 0x75, 0x8c, 0xdc, 0xca, 0xbf, 0x55, 0xee, 0x4a, 0x77, 0x8d, 0x16, 0xef,0x00 }; // Application Session Key
-uint32_t devAddr =  ( uint32_t )0x007e6a00; // Device Address
+/* ABP Parameters */
+uint8_t nwkSKey[16] = {0};
+uint8_t appSKey[16] = {0};
+uint32_t devAddr = 0;
 
-/* LoRaWAN channels mask, default channels 0-7 are enabled */
+/* Transmission duty cycle in milliseconds */
+uint32_t appTxDutyCycle = (30 * 1000);  // 30 seconds
+
+/* LoRaWAN Channel Mask (default channels 0-7) */
 uint16_t userChannelsMask[6] = { 0x00FF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
 
-/* LoRaWAN region, set in the Arduino IDE tools menu */
-LoRaMacRegion_t loraWanRegion = ACTIVE_REGION;
+bool accelWoke = false;
 
-/* LoRaWAN class, either Class A or Class C are supported */
-DeviceClass_t  loraWanClass = LORAWAN_CLASS;
+/* LoRaWAN Region (EU868) */
+LoRaMacRegion_t loraWanRegion = LORAMAC_REGION_EU868;
 
-/* Application data transmission duty cycle in milliseconds */
-uint32_t appTxDutyCycle = 14000;
+/* LoRaWAN Device Class (A or C) */
+DeviceClass_t loraWanClass = CLASS_A;
 
-/* Select OTAA (true) or ABP (false) for network activation */
-bool overTheAirActivation = LORAWAN_NETMODE;
+/* OTAA or ABP Mode */
+bool overTheAirActivation = true;  // OTAA is enabled
 
-/* Adaptive Data Rate (ADR) enable/disable */
-bool loraWanAdr = LORAWAN_ADR;
+/* Adaptive Data Rate (ADR) */
+bool loraWanAdr = true;  // ADR is enabled
 
-/* Enable saving network information to flash memory */
-bool keepNet = LORAWAN_NET_RESERVE;
+/* Save network info to flash (network reservation) */
+bool keepNet = false;  // Network reservation is disabled
 
-/* Indicates if the node is sending confirmed (true) or unconfirmed (false) messages */
-bool isTxConfirmed = LORAWAN_UPLINKMODE;
+/* Confirmed or Unconfirmed Messages */
+bool isTxConfirmed = false;  // Unconfirmed uplink messages
 
-/* Application port number, typically set between 1 and 200 */
-uint8_t appPort = 1; // Adjust according to the application needs
+/* Application port */
+uint8_t appPort = 2;
+/* Number of trials to transmit the frame */
+uint8_t confirmedNbTrials = 4;
 
-/*!
-* Number of trials to transmit the frame if no acknowledgment is received.
-* The data rate will be adjusted according to LoRaWAN specifications:
-* - 1st and 2nd trials: Same Data Rate (DR)
-* - 3rd and 4th trials: Lower DR by 1
-* - 5th and 6th trials: Lower DR by 2
-* - 7th and 8th trials: Lower DR by 3
-*/
-uint8_t confirmedNbTrials = 6; // Number of trials before stopping, adjusting DR
+/* Rain gauge counter */
+uint16_t rain_total = 0;
+/* Wind speed counter */
+uint16_t windspeed_total = 0;
 
-/* ---------------------------------------------------- */
-/* Prepare the payload for transmission */
-static void prepareTxFrame(uint8_t port) {
-    appDataSize = 2;  // Payload size in bytes (e.g., 2 bytes)
+/* Sensor measurements */
+float Temperature, Humidity, Pressure;
 
-    unsigned int humidity = 50;  // Example humidity value (e.g., 50%)
-    unsigned int temp = 24;      // Example temperature value (e.g., 24°C)
-    
-    appData[0] = humidity;  // Store humidity in payload
-    appData[1] = temp;      // Store temperature in payload
+/* Function to increment the rain gauge counter */
+void increment_rain_meter() {
+  rain_total++;
+  Serial.println("Rain meter incremented");
+  delay(50);  // Debounce delay to prevent multiple rapid triggers
 }
-/* ---------------------------------------------------- */
 
+/* Function to increment the wind speed counter */
+void increment_windspeed_meter() {
+  windspeed_total++;
+  Serial.println("Windspeed incremented");
+  delay(5);  // Debounce delay for wind speed measurement
+}
+
+/* Function to prepare the payload for transmission */
+static bool prepareTxFrame(uint8_t port, uint8_t restart) {
+  // Power up sensors
+  pinMode(Vext, OUTPUT);
+  digitalWrite(Vext, LOW);
+  delay(500);
+  pinMode(GPIO0, OUTPUT);
+  digitalWrite(GPIO0, LOW);
+
+  // Prepare local copies of counters to avoid concurrency issues
+  int offset = 0;
+  appPort = port;
+
+  uint16_t rain_total_copy = rain_total;
+  uint16_t windspeed_total_copy = windspeed_total;
+
+  // Initialize BME680 sensor and collect data
+  Wire.begin();
+  BME680.begin(I2C_STANDARD_MODE);
+  delay(1000);
+  BME680.setOversampling(TemperatureSensor, Oversample16);
+  BME680.setOversampling(HumiditySensor, Oversample16);
+  BME680.setOversampling(PressureSensor, Oversample16);
+  BME680.setIIRFilter(IIR4);
+
+  delay(3000);  // Burn-in delay for new sensors
+
+  static int32_t temperature, humidity, pressure, gas;
+  BME680.getSensorData(temperature, humidity, pressure, gas);
+  delay(500);
+  BME680.getSensorData(temperature, humidity, pressure, gas);
+
+  Temperature = temperature / 100.0;
+  Humidity = humidity / 1000.0;
+  Pressure = pressure / 100.0;
+  Wire.end();
+
+  // Measure battery voltage
+  unsigned int batteryVoltage = getBatteryVoltage();
+  appDataSize = 10;  // Total bytes in the payload
+
+  // Prepare sensor data for transmission
+  int Temperature_payload = Temperature * 100;
+  unsigned int Humidity_payload = Humidity * 100;
+  unsigned int Pressure_payload = Pressure / 2;
+
+  appData[0] = highByte(Temperature_payload);
+  appData[1] = lowByte(Temperature_payload);
+  appData[2] = highByte(Humidity_payload);
+  appData[3] = lowByte(Humidity_payload);
+  appData[4] = highByte(Pressure_payload);
+  appData[5] = lowByte(Pressure_payload);
+  appData[6] = highByte(batteryVoltage);
+  appData[7] = lowByte(batteryVoltage);
+  appData[8] = int(rain_total);
+  appData[9] = int(windspeed_total);
+
+  // Print sensor data to the serial monitor
+  Serial.print("Temp = ");
+  Serial.print(Temperature);
+  Serial.print(" °C, Humidity = ");
+  Serial.print(Humidity);
+  Serial.print("%, Pressure = ");
+  Serial.print(Pressure);
+  Serial.print(" Pa, Battery Voltage = ");
+  Serial.print(batteryVoltage);
+  Serial.print(" mV, Rain Counter = ");
+  Serial.println(rain_total);
+  Serial.print("Windspeed Counter = ");
+  Serial.println(windspeed_total);
+
+  return true;
+}
+
+extern bool IsLoRaMacNetworkJoined;
+
+/* Interrupt service routine for accelerometer wakeup */
+void accelWakeup() {
+  accelWoke = true;
+  delay(50);  // Debounce delay
+}
 
 void setup() {
-	boardInitMcu();        // Initialize the board
-	Serial.begin(115200);  // Start serial communication for debugging
-#if(AT_SUPPORT)
-	enableAt();            // Enable AT commands if supported
-#endif
-	deviceState = DEVICE_STATE_INIT;  // Set initial device state
-	LoRaWAN.ifskipjoin();  // Check if network join can be skipped (using saved state)
+  Serial.begin(115200);
+
+  // Setup rain gauge interrupt
+  pinMode(Rain_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(Rain_PIN), increment_rain_meter, FALLING);
+
+  // Setup wind speed interrupt
+  pinMode(Speed_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(Speed_PIN), increment_windspeed_meter, FALLING);
+
+  Serial.println("Interrupts attached");
+
+  // Enable the watchdog timer
+  innerWdtEnable(true);
+  delay(200);
 }
 
 void loop() {
-	switch (deviceState) {
-		case DEVICE_STATE_INIT:
-		{
-#if(AT_SUPPORT)
-			getDevParam();  // Get device parameters if AT support is enabled
-#endif
-			printDevParam();  // Print device parameters to the serial monitor
-			LoRaWAN.init(loraWanClass, loraWanRegion);  // Initialize LoRaWAN with the selected class and region
-			deviceState = DEVICE_STATE_JOIN;  // Move to the join state
-			break;
-		}
-		case DEVICE_STATE_JOIN:
-		{
-			LoRaWAN.join();  // Attempt to join the LoRaWAN network
-			break;
-		}
-		case DEVICE_STATE_SEND:
-		{ 
-			prepareTxFrame(appPort);  // Prepare the data payload for transmission
-			LoRaWAN.send();           // Send the data over LoRaWAN
-			deviceState = DEVICE_STATE_CYCLE;  // Move to the cycle state
-			break;
-		}
-		case DEVICE_STATE_CYCLE:
-		{
-			// Schedule the next transmission cycle with a random delay
-			txDutyCycleTime = appTxDutyCycle + randr(0, APP_TX_DUTYCYCLE_RND);
-			LoRaWAN.cycle(txDutyCycleTime);  // Start the cycle timer
-			deviceState = DEVICE_STATE_SLEEP;  // Move to the sleep state
-			break;
-		}
-		case DEVICE_STATE_SLEEP:
-		{
-			LoRaWAN.sleep();  // Put the device to sleep to save power
-			break;
-		}
-		default:
-		{
-			deviceState = DEVICE_STATE_INIT;  // Reinitialize if the state is unknown
-			break;
-		}
-	}
+  static uint8_t restart = 1;
+
+  if (accelWoke) {
+    uint32_t now = TimerGetCurrentTime();
+    Serial.print(now);
+    Serial.println(" Accelerometer wakeup detected");
+  }
+
+  switch (deviceState) {
+    case DEVICE_STATE_INIT:
+      printDevParam();
+      LoRaWAN.init(loraWanClass, loraWanRegion);
+      deviceState = DEVICE_STATE_JOIN;
+      break;
+
+    case DEVICE_STATE_JOIN:
+      LoRaWAN.join();
+      break;
+
+    case DEVICE_STATE_SEND:
+      prepareTxFrame(appPort, restart);
+      restart = 0;
+      LoRaWAN.send();
+      rain_total = 0;
+      windspeed_total = 0;
+      deviceState = DEVICE_STATE_CYCLE;
+      break;
+
+    case DEVICE_STATE_CYCLE:
+      txDutyCycleTime = appTxDutyCycle + randr(0, APP_TX_DUTYCYCLE_RND);
+      LoRaWAN.cycle(txDutyCycleTime);
+      deviceState = DEVICE_STATE_SLEEP;
+      break;
+
+    case DEVICE_STATE_SLEEP:
+      if (accelWoke) {
+        increment_rain_meter();
+      }
+  }
 }

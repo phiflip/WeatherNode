@@ -1,52 +1,36 @@
 #include <Wire.h>
-#include <BH1750.h>
-#include <BME680.h> // Include the BME680 sensor library
+#include <BME680.h>  // Include the BME680 sensor library
 
-BH1750 lightMeter; // Create an instance of the BH1750 light sensor
-BME680_Class BME680; // Create an instance of the BME680 environmental sensor
+// Create an instance of the BME680 environmental sensor
+BME680_Class BME680;
 
 /**************************************************************************************************
-** Declare global variables, instantiate classes                                                **
+** Declare global variables, instantiate classes                                                  **
 **************************************************************************************************/
 
-static int32_t temp, humidity, pressure, gas;  // Variables to store sensor readings
-float Temperature, Humidity, Pressure, Gas, Air_Quality, Light; // Variables for processed data
+static int32_t temp, humidity, pressure, gas;  // Add 'gas' variable to match the function signature
+float Temperature, Humidity, Pressure;    // Variables for processed data
 
-// Function to calculate the Indoor Air Quality (IAQ) index
-float CalculateIAQ() {
-  float hum_weighting = 0.25; // Humidity contributes 25% to the air quality score
-  float gas_weighting = 0.75; // Gas resistance contributes 75% to the air quality score
+/* Define GPIO pins for rain gauge and wind speed sensors */
+#define Rain_PIN GPIO5
+#define Speed_PIN GPIO3
 
-  float hum_score, gas_score;
-  float gas_reference = gas; // Current gas resistance
-  float hum_reference = 40.0; // Optimal humidity reference point
+/* Rain gauge and wind speed counters */
+uint16_t rain_total = 0;
+uint16_t windspeed_total = 0;
 
-  // Calculate humidity contribution to the IAQ index
-  if (Humidity >= 38 && Humidity <= 42) {
-    hum_score = hum_weighting * 100; // Humidity is optimal
-  } else { 
-    // Humidity is sub-optimal
-    if (Humidity < 38) {
-      hum_score = hum_weighting / hum_reference * Humidity * 100;
-    } else {
-      hum_score = ((-hum_weighting / (100 - hum_reference) * Humidity) + 0.416666) * 100;
-    }
-  }
+/* Function to increment the rain gauge counter */
+void increment_rain_meter() {
+  rain_total++;
+  Serial.println("Rain gauge incremented");
+  delay(50);  // Debounce delay to prevent multiple rapid triggers
+}
 
-  // Calculate gas resistance contribution to the IAQ index
-  float gas_lower_limit = 35000;  // Lower limit for poor air quality (in Ohms)
-  float gas_upper_limit = 70000;  // Upper limit for good air quality (in Ohms)
-  
-  if (gas_reference > gas_upper_limit) gas_reference = gas_upper_limit;
-  if (gas_reference < gas_lower_limit) gas_reference = gas_lower_limit;
-  
-  gas_score = (gas_weighting / (gas_upper_limit - gas_lower_limit) * gas_reference - 
-              (gas_lower_limit * (gas_weighting / (gas_upper_limit - gas_lower_limit)))) * 100;
-
-  // Combine humidity and gas scores for the final IAQ value (0-100%, where 100% is good air quality)
-  float air_quality_score = hum_score + gas_score;
-
-  return air_quality_score;
+/* Function to increment the wind speed counter */
+void increment_windspeed_meter() {
+  windspeed_total++;
+  Serial.println("Wind speed incremented");
+  delay(5);  // Debounce delay for wind speed measurement
 }
 
 void setup() {
@@ -55,13 +39,12 @@ void setup() {
   digitalWrite(Vext, LOW);
   delay(500);
 
-  // Initialize the BH1750 light sensor
-  lightMeter.begin();
-  Serial.begin(115200);  // Start serial communication at 115200 baud rate
-  Serial.println(F("BH1750 Test begin"));
-
+  // Initialize Serial communication
+  Serial.begin(115200);
   Serial.println(F("Starting BME680 sensor..."));
-  while (!BME680.begin(I2C_STANDARD_MODE)) {  // Initialize BME680 using I2C
+
+  // Initialize the BME680 sensor
+  while (!BME680.begin(I2C_STANDARD_MODE)) {
     Serial.println(F("Unable to find BME680. Retrying in 5 seconds..."));
     delay(5000);
   }
@@ -70,24 +53,30 @@ void setup() {
   BME680.setOversampling(TemperatureSensor, Oversample16);  // 16x oversampling for temperature
   BME680.setOversampling(HumiditySensor, Oversample16);     // 16x oversampling for humidity
   BME680.setOversampling(PressureSensor, Oversample16);     // 16x oversampling for pressure
-  BME680.setIIRFilter(IIR4);  // Set IIR filter to 4 samples
-  BME680.setGas(320, 150);    // Set gas heater to 320°C for 150ms
+  BME680.setIIRFilter(IIR4);                                // Set IIR filter to 4 samples
+
+  // Setup rain gauge interrupt
+  pinMode(Rain_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(Rain_PIN), increment_rain_meter, FALLING);
+
+  // Setup wind speed interrupt
+  pinMode(Speed_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(Speed_PIN), increment_windspeed_meter, FALLING);
+
+  Serial.println(F("Interrupts attached. Setup complete."));
 }
 
-void loop() {
-  // Read light level from BH1750
-  float Light = lightMeter.readLightLevel();
-  Serial.print("Light: ");
-  Serial.print(Light);
-  Serial.print(" lx | ");
 
-  // Read data from BME680 sensor
-  BME680.getSensorData(temp, humidity, pressure, gas);  
-  Temperature = temp / 100.0;      // Convert temperature to °C
-  Humidity = humidity / 1000.0;    // Convert humidity to %
-  Pressure = pressure;             // Pressure in Pascals
-  Gas = gas;                       // Gas resistance in Ohms
-  Air_Quality = CalculateIAQ();    // Calculate IAQ based on sensor data
+
+void loop() {
+  // Read data from the BME680 sensor
+
+// Call getSensorData with the correct number of arguments
+BME680.getSensorData(temp, humidity, pressure, gas, true);
+
+  Temperature = temp / 100.0;     // Convert temperature to °C
+  Humidity = humidity / 1000.0;   // Convert humidity to %
+  Pressure = pressure / 100.0;    // Convert pressure to hPa
 
   // Print sensor readings to serial
   Serial.print("Temperature: ");
@@ -100,15 +89,15 @@ void loop() {
 
   Serial.print("Pressure: ");
   Serial.print(Pressure);
-  Serial.print(" Pa | ");
+  Serial.print(" hPa | ");
 
-  Serial.print("Gas: ");
-  Serial.print(Gas);  // Ohms
-  Serial.print(" kOhms | ");
+  // Print rain gauge and wind speed counts
+  Serial.print("Rain Counter: ");
+  Serial.print(rain_total);
+  Serial.print(" | ");
 
-  Serial.print("Air Quality: ");
-  Serial.print(Air_Quality);  // Print IAQ value
-  Serial.println(" %");
+  Serial.print("Wind Speed Counter: ");
+  Serial.println(windspeed_total);
 
   delay(12000);  // Wait 12 seconds before the next loop iteration
 }
