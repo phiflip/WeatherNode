@@ -31,7 +31,7 @@ Before starting, ensure you have the following:
 
 - **Hardware:**
   - Details about the hardware components, including the list of sensors and 3D models for enclosures, can be found in the [`hardware`](./hardware) folder.
-  - **Enclosure STL Files:** 3D models for the sensor enclosures are located in the [`enclosure_stl`](./hardware/enclosure_stl) subfolder.
+  - **STL Files:** 3D models for the sensors connection clip are located in the [`stl_files`](./hardware/stl_files) subfolder.
 
 - **Software:**
   - Arduino IDE (for programming the CubeCell)
