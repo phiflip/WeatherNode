@@ -36,7 +36,7 @@ uint8_t appSKey[16] = {0};
 uint32_t devAddr = 0;
 
 /* Transmission duty cycle in milliseconds */
-uint32_t appTxDutyCycle = (90 * 1000);  // 30 seconds
+uint32_t appTxDutyCycle = (900 * 1000);  // 30 seconds
 
 /* LoRaWAN Channel Mask (default channels 0-7) */
 uint16_t userChannelsMask[6] = { 0x00FF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
@@ -75,14 +75,14 @@ uint16_t windspeed_total = 0;
 float Temperature, Humidity, Pressure;
 
 /* Function to increment the rain gauge counter */
-void increment_rain_meter() {
+/*void increment_rain_meter() {
   rain_total++;
   Serial.println("Rain meter incremented");
   delay(50);  // Debounce delay to prevent multiple rapid triggers
 }
 
 /* Function to increment the wind speed counter */
-void increment_windspeed_meter() {
+/*void increment_windspeed_meter() {
   windspeed_total++;
   Serial.println("Windspeed incremented");
   delay(5);  // Debounce delay for wind speed measurement
@@ -127,7 +127,7 @@ static bool prepareTxFrame(uint8_t port, uint8_t restart) {
 
   // Measure battery voltage
   unsigned int batteryVoltage = getBatteryVoltage();
-  appDataSize = 10;  // Total bytes in the payload
+  appDataSize = 11;  // Total bytes in the payload
 
   // Prepare sensor data for transmission
   int Temperature_payload = Temperature * 100;
@@ -143,7 +143,9 @@ static bool prepareTxFrame(uint8_t port, uint8_t restart) {
   appData[6] = highByte(batteryVoltage);
   appData[7] = lowByte(batteryVoltage);
   appData[8] = int(rain_total);
-  appData[9] = int(windspeed_total);
+  appData[9] = highByte(windspeed_total);
+  appData[10] = lowByte(windspeed_total);
+
 
   // Print sensor data to the serial monitor
   Serial.print("Temp = ");
@@ -188,7 +190,33 @@ void setup() {
   delay(200);
 }
 
+
+volatile bool rainDetected = false;
+volatile bool windDetected = false;
+
+void increment_rain_meter() {
+  rainDetected = true;  // Set a flag (instead of using delay)
+}
+
+void increment_windspeed_meter() {
+  windDetected = true;
+}
+
 void loop() {
+
+  if (rainDetected) {
+    rain_total++;
+    Serial.println("Rain meter incremented");
+    rainDetected = false;
+  }
+
+  if (windDetected) {
+    windspeed_total++;
+    Serial.println("Wind speed incremented");
+    windDetected = false;
+  }
+
+
   static uint8_t restart = 1;
 
   if (accelWoke) {
@@ -228,4 +256,6 @@ void loop() {
         increment_rain_meter();
       }
   }
+
+    LoRaWAN.sleep();
 }
