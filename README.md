@@ -4,8 +4,8 @@
 
 **WeatherNode** is a versatile and educational meteorological station project that uses the power of CubeCell microcontrollers, a range of environmental sensors, and Node-RED for real-time data processing and visualization. This project provides hands-on experience with IoT (Internet of Things) technologies, data acquisition, cloud integration, and real-time analytics for outdoor weather monitoring.
 
-<img src="https://github.com/phiflip/WeatherNode/blob/main/illustrations/NodeRed_Dashboard.PNG" alt="WeatherNode Node-RED Dashboard">
-
+[//]: <> (<img src="https://github.com/phiflip/WeatherNode/blob/main/illustrations/NodeRed_Dashboard.PNG" width="50" alt="WeatherNode Node-RED Dashboard">
+)
 ## Project Overview
 
 The WeatherNode project allows you to build a fully functional weather station capable of measuring various environmental parameters such as temperature, humidity, air pressure, rainfall, and wind speed. Data collected by the sensors is transmitted via LoRaWAN to a central server where it is processed and visualized using Node-RED.
