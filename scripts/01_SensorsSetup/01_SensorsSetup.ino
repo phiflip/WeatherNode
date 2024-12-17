@@ -12,26 +12,15 @@ static int32_t temp, humidity, pressure, gas;  // Add 'gas' variable to match th
 float Temperature, Humidity, Pressure;    // Variables for processed data
 
 /* Define GPIO pins for rain gauge and wind speed sensors */
-#define Rain_PIN GPIO5
 #define Speed_PIN GPIO3
+#define Rain_PIN GPIO5
+
 
 /* Rain gauge and wind speed counters */
 uint16_t rain_total = 0;
 uint16_t windspeed_total = 0;
 
-/* Function to increment the rain gauge counter */
-void increment_rain_meter() {
-  rain_total++;
-  Serial.println("Rain gauge incremented");
-  delay(50);  // Debounce delay to prevent multiple rapid triggers
-}
 
-/* Function to increment the wind speed counter */
-void increment_windspeed_meter() {
-  windspeed_total++;
-  Serial.println("Wind speed incremented");
-  delay(5);  // Debounce delay for wind speed measurement
-}
 
 void setup() {
   // Turn on Vext (external power)
@@ -66,10 +55,30 @@ void setup() {
   Serial.println(F("Interrupts attached. Setup complete."));
 }
 
+volatile bool rainDetected = false;
+volatile bool windDetected = false;
 
+void increment_rain_meter() {
+  rainDetected = true;  // Set a flag (instead of using delay)
+}
+
+void increment_windspeed_meter() {
+  windDetected = true;
+}
 
 void loop() {
-  // Read data from the BME680 sensor
+
+  if (rainDetected) {
+    rain_total++;
+    Serial.println("Rain meter incremented");
+    rainDetected = false;
+  }
+
+  if (windDetected) {
+    windspeed_total++;
+    Serial.println("Wind speed incremented");
+    windDetected = false;
+  }
 
 // Call getSensorData with the correct number of arguments
 BME680.getSensorData(temp, humidity, pressure, gas, true);
@@ -99,5 +108,5 @@ BME680.getSensorData(temp, humidity, pressure, gas, true);
   Serial.print("Wind Speed Counter: ");
   Serial.println(windspeed_total);
 
-  delay(12000);  // Wait 12 seconds before the next loop iteration
+  delay(4000);  // Wait 12 seconds before the next loop iteration
 }
