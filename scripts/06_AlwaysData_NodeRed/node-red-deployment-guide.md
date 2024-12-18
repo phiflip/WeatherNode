@@ -19,7 +19,7 @@ This guide provides step-by-step instructions to set up **Node-RED** on **Always
 To connect to your Alwaysdata server via SSH, use the following command:
 
 ```bash
-ssh your-username@ssh2.alwaysdata.com
+ssh your-username@ssh-your-username.alwaysdata.net 
 ```
 
 Replace `your-username` with your Alwaysdata username.
@@ -27,9 +27,8 @@ Replace `your-username` with your Alwaysdata username.
 ### Example:
 
 ```bash
-ssh phiflip@ssh2.alwaysdata.com
+ssh phiflip@phiflip.alwaysdata.net 
 ```
-
 ---
 
 ## 2. Node-RED Installation
@@ -39,9 +38,7 @@ Install Node-RED using `npm`:
 ```bash
 npm install -g --unsafe-perm node-red
 ```
-
 ---
-
 ## 3. Configuration in `settings.js`
 
 Configure the `settings.js` file to allow Node-RED to bind to all network interfaces.
@@ -56,22 +53,11 @@ Configure the `settings.js` file to allow Node-RED to bind to all network interf
 
    ```javascript
    uiHost: "::",     // Allows binding to IPv6 and IPv4
-   uiPort: process.env.PORT || 1880,  // Default port 1880, overridden by the environment variable PORT
    ```
-
 3. **Save and exit** with `Ctrl + X`, then `Y`, and `Enter`.
-
 ---
 
-## 4. Service and Site Commands in Alwaysdata
-
-### Service Command (Optional)
-
-If you are using Alwaysdata's **Service Configuration**, set the command to:
-
-```bash
-node-red -p 1880
-```
+## 4. Site Commands in Alwaysdata
 
 ### Site Command
 
@@ -114,7 +100,7 @@ To install the **Node-RED Dashboard**:
 
 #### 1. **Node-RED Binding to `127.0.0.1` Instead of `0.0.0.0`**
 
-- Ensure `uiHost` in `settings.js` is set to `"::"` or `"0.0.0.0"`:
+- Ensure `uiHost` in `settings.js` is set to `"::"`:
 
   ```javascript
   uiHost: "::",
@@ -129,24 +115,6 @@ If you encounter errors during installation, try:
   ```bash
   npm cache clean --force
   ```
-
-- **Check Free Disk Space**:
-
-  ```bash
-  df -h
-  ```
-
-#### 3. **Firewall Blocking Access**
-
-Check if a firewall is blocking the port:
-
-- **Allow Port 1880**:
-
-  ```bash
-  sudo ufw allow 1880
-  ```
-
----
 
 ## 7. Access Node-RED
 
@@ -163,7 +131,5 @@ http://phiflip.alwaysdata.net
 ```
 
 ---
-
 ## 🚀 You're All Set!
 
-You should now have a working Node-RED instance on Alwaysdata. If you encounter any issues, refer to the troubleshooting section or contact Alwaysdata support.
