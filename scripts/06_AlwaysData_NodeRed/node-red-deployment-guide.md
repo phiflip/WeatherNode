@@ -94,7 +94,20 @@ To install the **Node-RED Dashboard**:
 
 ---
 
-## 6. Troubleshooting
+## 6. Access Node-RED
+
+After starting Node-RED, access it via your domain:
+
+```
+http://your-username.alwaysdata.net
+```
+
+Example:
+
+```
+http://phiflip.alwaysdata.net
+```
+## 7. Troubleshooting
 
 ### Common Issues and Solutions
 
@@ -115,21 +128,6 @@ If you encounter errors during installation, try:
   ```bash
   npm cache clean --force
   ```
-
-## 7. Access Node-RED
-
-After starting Node-RED, access it via your domain:
-
-```
-http://your-username.alwaysdata.net
-```
-
-Example:
-
-```
-http://phiflip.alwaysdata.net
-```
-
 ---
 ## 🚀 You're All Set!
 
