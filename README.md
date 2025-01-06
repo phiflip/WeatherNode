@@ -20,7 +20,7 @@ The WeatherNode project allows you to build a fully functional weather station c
   - **Rainfall Sensor**
   - **Wind Speed Sensor**
 - **Node-RED Interface:** Data is processed and visualized in real-time using a customizable Node-RED dashboard, providing intuitive insights into weather conditions.
-- **Cloud Connectivity:** Demonstrates integration with cloud services like Google Spreadsheets, Oracle Cloud, and AWS for data storage and further processing.
+- **Cloud Connectivity:** Demonstrates integration with cloud services like Google Spreadsheets and AlwaysData for data storage and further processing.
 - **Educational Focus:** Ideal for students and educators, the WeatherNode project is structured to guide users through the process of setting up IoT systems, from hardware assembly to software integration and cloud deployment.
 
 ## Getting Started
