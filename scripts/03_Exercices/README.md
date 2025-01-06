@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains exercises aimed at helping you learn how to encode and decode sensor data using the BME680 and BH1750 sensors. These exercises will guide you through encoding sensor readings into a payload, transmitting them via LoRaWAN, and decoding the payload on The Things Network (TTN).
+This directory contains exercises aimed at helping you learn how to encode and decode sensor data using the BME680 and other sensors. These exercises will guide you through encoding sensor readings into a payload, transmitting them via LoRaWAN, and decoding the payload on The Things Network (TTN).
 
 ## Exercise 1: Encoding Sensor Data
 
