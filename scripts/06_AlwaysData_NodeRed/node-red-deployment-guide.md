@@ -4,17 +4,41 @@
 This guide provides step-by-step instructions to set up **Node-RED** on **Alwaysdata**, configure the `settings.js` file, install the **Node-RED Dashboard**, and access your instance via SSH.
 
 ## Table of Contents
-
-1. [SSH Access](#ssh-access)
-2. [Node-RED Installation](#node-red-installation)
-3. [Configuration in `settings.js`](#configuration-in-settingsjs)
-4. [Service and Site Commands](#service-and-site-commands)
-5. [Installing Node-RED Dashboard](#installing-node-red-dashboard)
-6. [Troubleshooting](#troubleshooting)
+1. [Creating a Node.js Site on Alwaysdata](#creating-a-nodejs-site-on-alwaysdata)
+2. [SSH Access](#ssh-access)
+3. [Node-RED Installation](#node-red-installation)
+4. [Configuration in `settings.js`](#configuration-in-settingsjs)
+5. [Site Commands](#service-and-site-commands)
+6. [Installing Node-RED Dashboard](#installing-node-red-dashboard)
+7. [Troubleshooting](#troubleshooting)
 
 ---
 
-## 1. SSH Access
+## 1. Creating a Node.js Site on Alwaysdata
+
+1. **Log in to Alwaysdata**: Go to your Alwaysdata dashboard.
+
+2. **Navigate to "Web > Sites"**:  
+   Go to **Web** and then select **Sites**.
+
+3. **Add a New Site**:  
+   - Click on **"Add a site"**.  
+   - Select **Node.js** as the site type.
+
+4. **Configure the Site**:  
+   - **Address**: Enter your desired domain or subdomain (e.g., `yourusername.alwaysdata.net`).  
+   - **Command**:  
+     ```bash
+     node-red
+     ```  
+5. **Save the Configuration**: Click **"Create"** to create the site.
+6. Enable SSH Access with a Password:
+   - Go to Remote access > SSH in your Alwaysdata dashboard.
+   - Select your SSH user and set a secure password.
+   - Ensure the option "Enable password-based login" is checked.
+   - Save your changes.
+---
+## 2. SSH Access
 
 To connect to your Alwaysdata server via SSH, use the following command:
 
@@ -31,7 +55,7 @@ ssh phiflip@phiflip.alwaysdata.net
 ```
 ---
 
-## 2. Node-RED Installation
+## 3. Node-RED Installation
 
 Install Node-RED using `npm`:
 
@@ -39,7 +63,7 @@ Install Node-RED using `npm`:
 npm install -g --unsafe-perm node-red
 ```
 ---
-## 3. Configuration in `settings.js`
+## 4. Configuration in `settings.js`
 
 Configure the `settings.js` file to allow Node-RED to bind to all network interfaces.
 
@@ -57,7 +81,7 @@ Configure the `settings.js` file to allow Node-RED to bind to all network interf
 3. **Save and exit** with `Ctrl + X`, then `Y`, and `Enter`.
 ---
 
-## 4. Site Commands in Alwaysdata
+## 5. Site Commands in Alwaysdata
 
 ### Site Command
 
@@ -69,7 +93,7 @@ node-red
 
 ---
 
-## 5. Installing Node-RED Dashboard
+## 6. Installing Node-RED Dashboard
 
 To install the **Node-RED Dashboard**:
 
@@ -94,14 +118,13 @@ To install the **Node-RED Dashboard**:
 
 ---
 
-## 6. Access Node-RED
+## Access Node-RED
 
 After starting Node-RED, access it via your domain:
 
 ```
 http://your-username.alwaysdata.net
 ```
-
 Example:
 
 ```
