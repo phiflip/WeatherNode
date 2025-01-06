@@ -2,13 +2,13 @@
 
 ## Overview
 
-This directory contains exercises aimed at helping you learn how to encode and decode sensor data using the BME680 and BH1750 sensors. These exercises will guide you through encoding sensor readings into a payload, transmitting them via LoRaWAN, and decoding the payload on The Things Network (TTN).
+This directory contains exercises aimed at helping you learn how to encode and decode sensor data using the BME680 and other sensors. These exercises will guide you through encoding sensor readings into a payload, transmitting them via LoRaWAN, and decoding the payload on The Things Network (TTN).
 
 ## Exercise 1: Encoding Sensor Data
 
 ### Objective
 
-In this exercise, you will learn how to encode sensor data into a hexadecimal payload. You will work with the BME680 and BH1750 sensors to collect environmental data (temperature, humidity, pressure, and light levels) and encode these readings into a payload suitable for transmission.
+In this exercise, you will learn how to encode sensor data into a hexadecimal payload. You will work with the BME680 and other sensors to collect environmental data (temperature, humidity, pressure, rain and wind speed) and encode these readings into a payload suitable for transmission.
 
 ### Instructions
 
