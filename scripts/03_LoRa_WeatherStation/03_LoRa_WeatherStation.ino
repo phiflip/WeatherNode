@@ -7,10 +7,11 @@
 #include "BME680.h"
 #include <Wire.h>
 
-// Define GPIO5 as the interrupt pin for the rain gauge
-#define Rain_PIN GPIO5
 // Define GPIO3 as the interrupt pin for wind speed measurement
 #define Speed_PIN GPIO3
+// Define GPIO5 as the interrupt pin for the rain gauge
+#define Rain_PIN GPIO5
+
 
 // Create an instance for the BME680 sensor
 BME680_Class BME680;
@@ -34,9 +35,8 @@ uint8_t appKey[] = { 0x0A, 0xC3, 0x21, 0x1D, 0xDD, 0x27, 0x10, 0xE0, 0xA7, 0x98,
 uint8_t nwkSKey[16] = { 0 };
 uint8_t appSKey[16] = { 0 };
 uint32_t devAddr = 0;
-
 /* Transmission duty cycle in milliseconds */
-uint32_t appTxDutyCycle = (1800 * 1000);  // 30 seconds
+uint32_t appTxDutyCycle = (30 * 1000);  // 30 seconds (in ms)
 
 /* LoRaWAN Channel Mask (default channels 0-7) */
 uint16_t userChannelsMask[6] = { 0x00FF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
@@ -107,19 +107,20 @@ static bool prepareTxFrame(uint8_t port, uint8_t restart) {
   delay(500);
   BME680.getSensorData(temperature, humidity, pressure, gas);
 
-  Temperature = temperature / 100.0;
-  Humidity = humidity / 1000.0;
-  Pressure = pressure / 100.0;
+  Temperature = temperature;
+  Humidity = humidity;
+  Pressure = pressure;
   Wire.end();
 
   // Measure battery voltage
   unsigned int batteryVoltage = getBatteryVoltage();
-  appDataSize = 11;  // Total bytes in the payload
+  appDataSize = 12;  // Total bytes in the payload
 
   // Prepare sensor data for transmission
-  int Temperature_payload = Temperature * 100;
-  unsigned int Humidity_payload = Humidity * 100;
+  int Temperature_payload = Temperature;
+  unsigned int Humidity_payload = Humidity;
   unsigned int Pressure_payload = Pressure / 2;
+  unsigned int Duty_payload = appTxDutyCycle / 10000;
 
   // Encode temperature data
   appData[0] = highByte(Temperature_payload);
@@ -138,6 +139,8 @@ static bool prepareTxFrame(uint8_t port, uint8_t restart) {
   // Encode wind events data
   appData[9] = highByte(windspeed_total);
   appData[10] = lowByte(windspeed_total);
+  // Encode duty cycle time
+  appData[11] = lowByte(Duty_payload);
 
 
   // Print sensor data to the serial monitor
@@ -153,7 +156,8 @@ static bool prepareTxFrame(uint8_t port, uint8_t restart) {
   Serial.println(rain_total);
   Serial.print("Windspeed Counter = ");
   Serial.println(windspeed_total);
-
+  Serial.print("Duty cycle time ");
+  Serial.println(Duty_payload);
   return true;
 }
 
