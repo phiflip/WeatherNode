@@ -31,7 +31,7 @@ This guide explains how to send data from Node-RED to Google Sheets using Google
    ```plaintext
    https://docs.google.com/forms/d/e/<FORM_ID>/formResponse?entry.123456=11&entry.654321=22&entry.789012=33
    ```
-3. Replace `/viewform` with `/formResponse` and substitute placeholders (e.g., `{{payload.temperature}}`).
+3. Replace `/viewform` with `/formResponse` and substitute placeholders (e.g.,11 with `{{payload.temperature}}`).
 
 ---
 
