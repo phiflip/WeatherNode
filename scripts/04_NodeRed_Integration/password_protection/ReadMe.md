@@ -1,7 +1,9 @@
 
-# Node-RED Deployment Guide with Password Protection for Alwaysdata
+# Node-RED Deployment Guide with Password Protection
 
-This guide provides step-by-step instructions to set up **Node-RED** on **Alwaysdata**, configure the `settings.js` file, add password protection, and ensure changes are applied properly.
+This guide provides step-by-step instructions to set up **password protection** on **Node-RED**.
+
+---
 
 ## Table of Contents
 
@@ -10,86 +12,91 @@ This guide provides step-by-step instructions to set up **Node-RED** on **Always
 3. [Restarting Node-RED and Applying Changes](#restarting-node-red-and-applying-changes)
 4. [Troubleshooting](#troubleshooting)
 
+---
 
+## 1. Creating a Password Hash
 
-## 3. Creating a Password Hash
+To protect Node-RED with a password, follow these steps:
 
-To protect Node-RED with a password, create a password hash using the `node-red-admin` tool.
-
-1. **Install `node-red-admin`** (if not already installed):
-
+1. **Generate a Password Hash**:
    ```bash
-   npm install -g node-red-admin
+   node-red admin hash-pw
    ```
+2. **Enter your desired password** (the input will not be visible) and press **Enter**.
 
-2. **Create a Password Hash**:
-
-   ```bash
-   node-red-admin hash-pw
-   ```
-
-3. **Enter your desired password** and copy the generated hash, which will look like this:
-
+3. **Copy the generated hash**, which will look like this:
    ```plaintext
-   $2b$08$K2y/bGpSTZJmOY.nIKs5Qu2nQjv9frWY.vGyxZSOjxzD3P9Elj2Mu
+   $2b$08$K2y/bGpSxZJmOY.nIKs5Qu2nQjv9frWY.cGyRZSEjxzD3P9Elu2Mj
    ```
 
 ---
 
-## 4. Configuration in `settings.js`
+## 2. Configuration in `settings.js`
 
-1. Open `settings.js`:
-
+1. **Open the `settings.js` file**:
    ```bash
    nano ~/.node-red/settings.js
    ```
 
-2. Add the following `adminAuth` configuration and paste your generated hash:
+2. **Add or update the `adminAuth` configuration** with the following code. Replace `"$2b$08$..."` with your generated hash:
 
    ```javascript
    adminAuth: {
        type: "credentials",
        users: [{
            username: "admin",
-           password: "$2b$08$K2y/bGpSTZJmOY.nIKs5Qu2nQjv9frWY.vGyxZSOjxzD3P9Elj2Mu",
+           password: "$2b$08$K2y/bGpSxZJmOY.nIKs5Qu2nQjv9frWY.cGyRZSEjxzD3P9Elu2Mj",  // Replace with your hash
            permissions: "*"
        }]
    },
    ```
-4. **Save and exit** with `Ctrl + X`, then `Y`, and `Enter`.
+
+3. **Paste the hash** using **right-click** or your terminal's paste function.
+
+4. **Save and exit** the file:
+   - Press `Ctrl + X`, then `Y`, and finally `Enter`.
 
 ---
 
-## 5. Restarting Node-RED and Applying Changes
+## 3. Restarting Node-RED and Applying Changes
 
 1. **Stop any running Node-RED instances**:
-
    ```bash
    pkill node-red
    ```
 
 2. **Start Node-RED**:
-
    ```bash
    node-red
    ```
 
-3. **Reload the Site in Alwaysdata**:
-
-   - Go to **Sites** in your Alwaysdata dashboard.
-   - Find your Node-RED site entry and click **“Restart”** or refresh the page to apply the changes.
-
-4. **Access Node-RED** via your domain:
-
+3. **Access Node-RED** via your browser using your domain or IP address:
    ```plaintext
    http://your-username.alwaysdata.net
    ```
 
-   Example:
+4. **Log in** with:
+   - **Username**: `admin`
+   - **Password**: Your previously entered password.
 
-   ```plaintext
-   http://phiflip.alwaysdata.net
-   ```
+---
 
-5. **Log in** with the username **`admin`** and your password.
+## 4. Troubleshooting
+
+### Common Issues
+
+1. **Cannot Log In**:
+   - Double-check the `adminAuth` section in `settings.js`.
+   - Ensure the hash is correctly pasted.
+
+2. **Changes Not Applied**:
+   - Ensure Node-RED was restarted after editing `settings.js`.
+   - Check for syntax errors in `settings.js`.
+
+3. **Permission Denied Errors**:
+   - Ensure `settings.js` has the correct permissions:
+     ```bash
+     chmod 600 ~/.node-red/settings.js
+     ```
+
 ---
