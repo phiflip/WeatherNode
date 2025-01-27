@@ -5,7 +5,7 @@ scripts/03_Exercices
 # scripts/03_LoRa_WeatherStation
 #scripts/04_NodeRed_Integration
 scripts/05_GoogleSpreadsheet_NodeRed
-#scripts/06_AlwaysData_NodeRed
+scripts/06_AlwaysData_NodeRed
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
