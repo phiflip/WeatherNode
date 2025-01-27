@@ -25,7 +25,7 @@ This guide explains how to use the Open-Meteo API with Node-RED to fetch and dis
    - **Method**: `GET`
    - **URL**: Replace latitude and longitude with your desired location:
      ```
-     https://api.open-meteo.com/v1/forecast?latitude=46.874&longitude=7.283&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,rain,cloudcover,windspeed_10m&current_weather=true&forecast_days=1&timezone=Europe%2FBerlin
+     https://api.open-meteo.com/v1/forecast?latitude=46.874&longitude=7.2773&current=temperature_2m,relative_humidity_2m,precipitation,rain,pressure_msl,wind_speed_10m
      ```
    - **Return**: A parsed JSON object.
 
@@ -34,27 +34,13 @@ This guide explains how to use the Open-Meteo API with Node-RED to fetch and dis
 ## **4. Function Node**
 
 1. Drag a **Function Node** to process the API response.
-2. Use the following example code to extract weather data:
+2. Use the following example code to extract the current temperature:
    ```javascript
-   var currentTemp = {};
-   var humidity = {};
-   var windSpeed = {};
-
-   if (msg.payload.current_weather) {
-       currentTemp.payload = msg.payload.current_weather.temperature; // Temperature
-       currentTemp.topic = "Current Temperature";
-
-       humidity.payload = msg.payload.current_weather.relativehumidity_2m; // Humidity
-       humidity.topic = "Humidity";
-
-       windSpeed.payload = msg.payload.current_weather.windspeed; // Wind Speed
-       windSpeed.topic = "Wind Speed";
-   }
-
-   return [currentTemp, humidity, windSpeed];
+   msg.payload = msg.payload.current.temperature_2m; // Temperature
+   return msg;
    ```
 
-3. Configure the Function Node outputs to match the extracted metrics.
+3. Connect the output of the Function Node to a visualization node, such as a Gauge Node.
 
 ---
 
@@ -63,9 +49,6 @@ This guide explains how to use the Open-Meteo API with Node-RED to fetch and dis
 1. Drag Gauge nodes or other visualization nodes into your flow.
 2. Configure each node:
    - **Temperature Gauge**: Min: `-20`, Max: `50`, Unit: `°C`.
-   - **Humidity Gauge**: Min: `0`, Max: `100`, Unit: `%`.
-   - **Wind Speed Gauge**: Min: `0`, Max: `50`, Unit: `km/h`.
-3. Connect each Function Node output to a respective gauge node.
 
 ---
 
@@ -75,5 +58,3 @@ This guide explains how to use the Open-Meteo API with Node-RED to fetch and dis
 - Provides a wide range of weather metrics.
 
 ---
-
-Enjoy using the Open-Meteo API in your Node-RED projects!
