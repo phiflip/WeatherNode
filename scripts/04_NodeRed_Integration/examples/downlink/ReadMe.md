@@ -70,7 +70,6 @@ This guide explains how to configure a downlink message to send commands to a TT
 ---
 
 ## **4. Notes**
-- Ensure the `f_port` value matches the port expected by your device.
 - Downlink messages are delivered at the next uplink interval.
 - The payload should be encoded in Base64, as shown in the Function Node example.
 

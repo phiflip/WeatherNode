@@ -36,8 +36,8 @@ This guide explains how to use the Open-Meteo API with Node-RED to fetch and dis
 1. Drag a **Function Node** to process the API response.
 2. Use the following example code to extract the current temperature:
    ```javascript
-   msg.payload = msg.payload.current.temperature_2m; // Temperature
-   return msg;
+      const openm_temperature = msg.payload.current.temperature_2m; // Temperature
+      return { payload: openm_temperature };
    ```
 
 3. Connect the output of the Function Node to a visualization node, such as a Gauge Node.
