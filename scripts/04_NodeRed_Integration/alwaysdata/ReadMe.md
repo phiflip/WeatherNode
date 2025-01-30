@@ -162,8 +162,7 @@ http://phiflip.alwaysdata.net
   ```
 
 #### 2. **NPM Installation Errors**
-
-If you encounter errors during installation, try:
+If npm package installations fail, you must clear the cache afterward to free up space on alwaysdata:
 
 - **Clear NPM Cache**:
   ```bash
