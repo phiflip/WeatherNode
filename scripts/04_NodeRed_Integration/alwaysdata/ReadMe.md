@@ -3,19 +3,19 @@
 This guide provides step-by-step instructions to set up **Node-RED** on **Alwaysdata**, configure the `settings.js` file, install the **Node-RED Dashboard**, and access your instance via SSH.
 
 ## Table of Contents
-1. [Creating a Node.js Site on Alwaysdata](#creating-a-nodejs-site-on-alwaysdata)
-2. [SSH Access](#ssh-access)
-3. [Node-RED Installation](#node-red-installation)
-4. [Starting Node-RED and Generating `settings.js`](#starting-node-red-and-generating-settingsjs)
-5. [Configuration in `settings.js`](#configuration-in-settingsjs)
-6. [Installing Node-RED Dashboard](#installing-node-red-dashboard)
-7. [Access Node-RED](#access-node-red)
-8. [Troubleshooting](#troubleshooting)
-9. [Securing Node-RED with a Password](#securing-node-red-with-a-password)
+- [Creating a Node.js Site on Alwaysdata](#creating-a-nodejs-site-on-alwaysdata)
+- [SSH Access](#ssh-access)
+- [Node-RED Installation](#node-red-installation)
+- [Starting Node-RED and Generating settings.js](#starting-node-red-and-generating-settingsjs)
+- [Configuration in settings.js](#configuration-in-settingsjs)
+- [Installing Node-RED Dashboard](#installing-node-red-dashboard)
+- [Access Node-RED](#access-node-red)
+- [Troubleshooting](#troubleshooting)
+- [Securing Node-RED with a Password](#securing-node-red-with-a-password)
 
 ---
 
-## 1. Creating a Node.js Site on Alwaysdata
+## Creating a Node.js Site on Alwaysdata
 
 1. **Log in to Alwaysdata**: Go to your Alwaysdata dashboard.
 
@@ -43,7 +43,7 @@ This guide provides step-by-step instructions to set up **Node-RED** on **Always
 
 ---
 
-## 2. SSH Access
+## SSH Access
 
 To connect to your Alwaysdata server via SSH, use the following command in your terminal:
 
@@ -61,7 +61,7 @@ ssh phiflip@ssh-phiflip.alwaysdata.net
 
 ---
 
-## 3. Node-RED Installation
+## Node-RED Installation
 
 Install Node-RED using `npm`:
 
@@ -71,7 +71,7 @@ npm install -g --unsafe-perm node-red
 
 ---
 
-## 4. Starting Node-RED and Generating `settings.js`
+## Starting Node-RED and Generating settings.js
 
 To configure Node-RED, the `settings.js` file must first be created. This happens the first time Node-RED is started.
 
@@ -86,7 +86,7 @@ To configure Node-RED, the `settings.js` file must first be created. This happen
 
 ---
 
-## 5. Configuration in `settings.js`
+## Configuration in settings.js
 
 1. **Locate the `settings.js` File**:  
    The file is typically located in the `.node-red` directory:
@@ -111,7 +111,7 @@ To configure Node-RED, the `settings.js` file must first be created. This happen
 
 ---
 
-## 6. Installing Node-RED Dashboard
+## Installing Node-RED Dashboard
 
 To install the **Node-RED Dashboard**:
 
@@ -123,8 +123,6 @@ To install the **Node-RED Dashboard**:
 2. **Install the Dashboard Package**:
    ```bash
    cd ~/.node-red
-    ```
-    ```bash
    npm install node-red-dashboard
    ```
 
@@ -135,7 +133,7 @@ To install the **Node-RED Dashboard**:
 
 ---
 
-## 7. Access Node-RED
+## Access Node-RED
 
 After starting Node-RED, you can access it via your Alwaysdata domain:
 
@@ -151,11 +149,11 @@ http://phiflip.alwaysdata.net
 
 ---
 
-## 8. Troubleshooting
+## Troubleshooting
 
 ### Common Issues and Solutions
 
-#### 1. **Node-RED Binding to `127.0.0.1` Instead of `0.0.0.0`**
+#### Node-RED Binding to `127.0.0.1` Instead of `0.0.0.0`
 
 - Ensure `uiHost` in `settings.js` is set to `"::"`:
 
@@ -163,7 +161,7 @@ http://phiflip.alwaysdata.net
   uiHost: "::",
   ```
 
-#### 2. **NPM Installation Errors**
+#### NPM Installation Errors
 If npm package installations fail, you must clear the cache afterward to free up space on alwaysdata:
 
 - **Clear NPM Cache**:
@@ -171,7 +169,7 @@ If npm package installations fail, you must clear the cache afterward to free up
   npm cache clean --force
   ```
 
-#### 3. **Port Conflicts**
+#### Port Conflicts
 
 If Node-RED fails to start due to port conflicts, specify a custom port in the `settings.js` file:
 ```javascript
@@ -180,7 +178,7 @@ uiPort: 1880,  // Replace 1880 with an available port
 
 ---
 
-## 9. Securing Node-RED with a Password
+## Securing Node-RED with a Password
 
 Protecting your Node-RED editor is strongly recommended.
 
