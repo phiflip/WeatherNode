@@ -232,3 +232,15 @@ https://your-username.alwaysdata.net
 ```
 
 You will now be prompted to log in with **admin** and your chosen password.
+
+## Restarting Your Alwaysdata Site
+
+After completing all configurations or changes in **settings.js**,  
+it's best to **restart your Alwaysdata site** to apply everything cleanly.
+
+1. Go to your **Alwaysdata dashboard**.  
+2. Navigate to **Web → Sites**.  
+3. Locate your Node.js site running Node-RED.  
+4. Click the **Restart (circular arrow) icon** on the right-hand side.  
+
+This ensures that Node-RED restarts properly and loads the latest configuration.
