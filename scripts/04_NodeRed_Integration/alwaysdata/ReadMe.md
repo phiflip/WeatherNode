@@ -20,7 +20,7 @@ This guide provides step-by-step instructions to set up **Node-RED** on **Always
 1. **Log in to Alwaysdata**: Go to your Alwaysdata dashboard.
 
 2. **Navigate to "Web > Sites"**:  
-   Go to **Web** and then select **Sites**.
+   Go to **Web** and then select **Sites** (or if a page already exists, the setting can be made using the Modify cogwheel icon).
 
 3. **Add a New Site**:  
    - Click on **"Add a site"**.  
