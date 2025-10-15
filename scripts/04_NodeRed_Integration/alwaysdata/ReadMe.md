@@ -123,7 +123,9 @@ To install the **Node-RED Dashboard**:
 2. **Install the Dashboard Package**:
    ```bash
    cd ~/.node-red
-   npm install node-red-dashboard@3.6.5
+    ```
+    ```bash
+   npm install node-red-dashboard
    ```
 
 3. **Start Node-RED**:
