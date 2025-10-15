@@ -1,4 +1,3 @@
-
 # Node-RED Deployment Guide for Alwaysdata
 
 This guide provides step-by-step instructions to set up **Node-RED** on **Alwaysdata**, configure the `settings.js` file, install the **Node-RED Dashboard**, and access your instance via SSH.
@@ -12,6 +11,7 @@ This guide provides step-by-step instructions to set up **Node-RED** on **Always
 6. [Installing Node-RED Dashboard](#installing-node-red-dashboard)
 7. [Access Node-RED](#access-node-red)
 8. [Troubleshooting](#troubleshooting)
+9. [Securing Node-RED with a Password](#securing-node-red-with-a-password)
 
 ---
 
@@ -177,3 +177,60 @@ If Node-RED fails to start due to port conflicts, specify a custom port in the `
 ```javascript
 uiPort: 1880,  // Replace 1880 with an available port
 ```
+
+---
+
+## 9. Securing Node-RED with a Password
+
+Protecting your Node-RED editor is strongly recommended.
+
+### 1. Generate a Password Hash
+
+Run the following command and enter your desired password (it will not be displayed while typing):
+
+```bash
+node-red admin hash-pw
+```
+
+Copy the generated hash string (it starts with `$2b$...`).
+
+---
+
+### 2. Edit the `settings.js` File
+
+Open your configuration file:
+
+```bash
+nano ~/.node-red/settings.js
+```
+
+Find the `adminAuth` section (it may be commented out) and replace it with the following:
+
+```javascript
+adminAuth: {
+    type: "credentials",
+    users: [{
+        username: "admin",
+        password: "<PASTE-YOUR-HASH-HERE>",
+        permissions: "*"
+    }]
+},
+```
+
+Save and exit (`Ctrl + X`, then `Y`, and `Enter`).
+
+---
+
+### 3. Restart Node-RED
+
+```bash
+node-red
+```
+
+After restarting, open your Node-RED instance again in the browser:
+
+```
+https://your-username.alwaysdata.net
+```
+
+You will now be prompted to log in with **admin** and your chosen password.
