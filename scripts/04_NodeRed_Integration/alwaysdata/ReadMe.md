@@ -45,7 +45,7 @@ This guide provides step-by-step instructions to set up **Node-RED** on **Always
 
 ## 2. SSH Access
 
-To connect to your Alwaysdata server via SSH, use the following command:
+To connect to your Alwaysdata server via SSH, use the following command in your terminal:
 
 ```bash
 ssh your-username@ssh-your-username.alwaysdata.net 
