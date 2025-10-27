@@ -1,26 +1,26 @@
-
 # Node-RED Deployment Guide for Alwaysdata
 
 This guide provides step-by-step instructions to set up **Node-RED** on **Alwaysdata**, configure the `settings.js` file, install the **Node-RED Dashboard**, and access your instance via SSH.
 
 ## Table of Contents
-1. [Creating a Node.js Site on Alwaysdata](#creating-a-nodejs-site-on-alwaysdata)
-2. [SSH Access](#ssh-access)
-3. [Node-RED Installation](#node-red-installation)
-4. [Starting Node-RED and Generating `settings.js`](#starting-node-red-and-generating-settingsjs)
-5. [Configuration in `settings.js`](#configuration-in-settingsjs)
-6. [Installing Node-RED Dashboard](#installing-node-red-dashboard)
-7. [Access Node-RED](#access-node-red)
-8. [Troubleshooting](#troubleshooting)
+- [Creating a Node.js Site on Alwaysdata](#creating-a-nodejs-site-on-alwaysdata)
+- [SSH Access](#ssh-access)
+- [Node-RED Installation](#node-red-installation)
+- [Starting Node-RED and Generating settings.js](#starting-node-red-and-generating-settingsjs)
+- [Configuration in settings.js](#configuration-in-settingsjs)
+- [Installing Node-RED Dashboard](#installing-node-red-dashboard)
+- [Access Node-RED](#access-node-red)
+- [Troubleshooting](#troubleshooting)
+- [Securing Node-RED with a Password](#securing-node-red-with-a-password)
 
 ---
 
-## 1. Creating a Node.js Site on Alwaysdata
+## Creating a Node.js Site on Alwaysdata
 
 1. **Log in to Alwaysdata**: Go to your Alwaysdata dashboard.
 
 2. **Navigate to "Web > Sites"**:  
-   Go to **Web** and then select **Sites**.
+   Go to **Web** and then select **Sites** (or if a page already exists, the setting can be made using the Modify cogwheel icon).
 
 3. **Add a New Site**:  
    - Click on **"Add a site"**.  
@@ -43,9 +43,9 @@ This guide provides step-by-step instructions to set up **Node-RED** on **Always
 
 ---
 
-## 2. SSH Access
+## SSH Access
 
-To connect to your Alwaysdata server via SSH, use the following command:
+To connect to your Alwaysdata server via SSH, use the following command in your terminal:
 
 ```bash
 ssh your-username@ssh-your-username.alwaysdata.net 
@@ -61,7 +61,7 @@ ssh phiflip@ssh-phiflip.alwaysdata.net
 
 ---
 
-## 3. Node-RED Installation
+## Node-RED Installation
 
 Install Node-RED using `npm`:
 
@@ -71,7 +71,7 @@ npm install -g --unsafe-perm node-red
 
 ---
 
-## 4. Starting Node-RED and Generating `settings.js`
+## Starting Node-RED and Generating settings.js
 
 To configure Node-RED, the `settings.js` file must first be created. This happens the first time Node-RED is started.
 
@@ -86,7 +86,7 @@ To configure Node-RED, the `settings.js` file must first be created. This happen
 
 ---
 
-## 5. Configuration in `settings.js`
+## Configuration in settings.js
 
 1. **Locate the `settings.js` File**:  
    The file is typically located in the `.node-red` directory:
@@ -111,7 +111,7 @@ To configure Node-RED, the `settings.js` file must first be created. This happen
 
 ---
 
-## 6. Installing Node-RED Dashboard
+## Installing Node-RED Dashboard
 
 To install the **Node-RED Dashboard**:
 
@@ -123,7 +123,7 @@ To install the **Node-RED Dashboard**:
 2. **Install the Dashboard Package**:
    ```bash
    cd ~/.node-red
-   npm install node-red-dashboard@3.6.5
+   npm install node-red-dashboard
    ```
 
 3. **Start Node-RED**:
@@ -133,7 +133,7 @@ To install the **Node-RED Dashboard**:
 
 ---
 
-## 7. Access Node-RED
+## Access Node-RED
 
 After starting Node-RED, you can access it via your Alwaysdata domain:
 
@@ -149,11 +149,11 @@ http://phiflip.alwaysdata.net
 
 ---
 
-## 8. Troubleshooting
+## Troubleshooting
 
 ### Common Issues and Solutions
 
-#### 1. **Node-RED Binding to `127.0.0.1` Instead of `0.0.0.0`**
+#### Node-RED Binding to `127.0.0.1` Instead of `0.0.0.0`
 
 - Ensure `uiHost` in `settings.js` is set to `"::"`:
 
@@ -161,7 +161,7 @@ http://phiflip.alwaysdata.net
   uiHost: "::",
   ```
 
-#### 2. **NPM Installation Errors**
+#### NPM Installation Errors
 If npm package installations fail, you must clear the cache afterward to free up space on alwaysdata:
 
 - **Clear NPM Cache**:
@@ -169,9 +169,78 @@ If npm package installations fail, you must clear the cache afterward to free up
   npm cache clean --force
   ```
 
-#### 3. **Port Conflicts**
+#### Port Conflicts
 
 If Node-RED fails to start due to port conflicts, specify a custom port in the `settings.js` file:
 ```javascript
 uiPort: 1880,  // Replace 1880 with an available port
 ```
+
+---
+
+## Securing Node-RED with a Password
+
+Protecting your Node-RED editor is strongly recommended.
+
+### 1. Generate a Password Hash
+
+Run the following command and enter your desired password (it will not be displayed while typing):
+
+```bash
+node-red admin hash-pw
+```
+
+Copy the generated hash string (it starts with `$2b$...`).
+
+---
+
+### 2. Edit the `settings.js` File
+
+Open your configuration file:
+
+```bash
+nano ~/.node-red/settings.js
+```
+
+Find the `adminAuth` section (it may be commented out) and replace it with the following:
+
+```javascript
+adminAuth: {
+    type: "credentials",
+    users: [{
+        username: "admin",
+        password: "<PASTE-YOUR-HASH-HERE>",
+        permissions: "*"
+    }]
+},
+```
+
+Save and exit (`Ctrl + X`, then `Y`, and `Enter`).
+
+---
+
+### 3. Restart Node-RED
+
+```bash
+node-red
+```
+
+After restarting, open your Node-RED instance again in the browser:
+
+```
+https://your-username.alwaysdata.net
+```
+
+You will now be prompted to log in with **admin** and your chosen password.
+
+## Restarting Your Alwaysdata Site
+
+After completing all configurations or changes in **settings.js**,  
+it's best to **restart your Alwaysdata site** to apply everything cleanly.
+
+1. Go to your **Alwaysdata dashboard**.  
+2. Navigate to **Web → Sites**.  
+3. Locate your Node.js site running Node-RED.  
+4. Click the **Restart (circular arrow) icon** on the right-hand side.  
+
+This ensures that Node-RED restarts properly and loads the latest configuration.

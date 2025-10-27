@@ -120,7 +120,7 @@ static bool prepareTxFrame(uint8_t port, uint8_t restart) {
   int Temperature_payload = Temperature;
   unsigned int Humidity_payload = Humidity;
   unsigned int Pressure_payload = Pressure / 2;
-  unsigned int Duty_payload = appTxDutyCycle / 10000;
+  unsigned int Duty_payload = appTxDutyCycle / 10000; // to write it in a single byte only
 
   // Encode temperature data
   appData[0] = highByte(Temperature_payload);
