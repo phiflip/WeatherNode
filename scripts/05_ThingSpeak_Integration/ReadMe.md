@@ -21,7 +21,7 @@ var var2 = (bytes[2] << 8 | bytes[3]) / 1000;
 var var3 = (bytes[4] << 8 | bytes[5]) * 2;
 var var4 = (bytes[6] << 8 | bytes[7]) / 1000;
 var var5 = bytes[8]; 
-var var6 = (bytes[9] << 8 | bytes[10]) * 2 * 3.1428 * 0.08;
+var var6 = (bytes[9] << 8 | bytes[10]) * 2 * 3.1415 * 0.08;
 var var7 = bytes[11] * 10;
 
 return {
