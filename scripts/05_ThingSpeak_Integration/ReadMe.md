@@ -17,7 +17,7 @@ and paste the following decoder:
 ```js
 function Decoder(bytes, port) {
 var var1 = ((bytes[0] << 24) >> 16 | bytes[1]) / 100;
-var var2 = (bytes[2] << 8 | bytes[3]) / 1000; 
+var var2 = (bytes[2] << 8 | bytes[3]) / 10; 
 var var3 = (bytes[4] << 8 | bytes[5]) * 2;
 var var4 = (bytes[6] << 8 | bytes[7]) / 1000;
 var var5 = bytes[8]; 
