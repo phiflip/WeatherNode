@@ -118,7 +118,7 @@ static bool prepareTxFrame(uint8_t port, uint8_t restart) {
 
   // Prepare sensor data for transmission
   int Temperature_payload = Temperature;
-  unsigned int Humidity_payload = Humidity;
+  unsigned int Humidity_payload = Humidity / 100;
   unsigned int Pressure_payload = Pressure / 2;
   unsigned int Duty_payload = appTxDutyCycle / 10000; // to write it in a single byte only
 
