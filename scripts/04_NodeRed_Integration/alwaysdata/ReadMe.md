@@ -1,17 +1,15 @@
 # Node-RED Deployment Guide for Alwaysdata
 
-This guide provides step-by-step instructions to set up **Node-RED** on **Alwaysdata**, configure the `settings.js` file, install the **Node-RED Dashboard**, and access your instance via SSH.
+This guide provides step-by-step instructions to set up **Node-RED** on **Alwaysdata**, install the prepared **FlowFuse Dashboard** package, configure the site, and access your instance via SSH.
 
 ## Table of Contents
 - [Creating a Node.js Site on Alwaysdata](#creating-a-nodejs-site-on-alwaysdata)
 - [SSH Access](#ssh-access)
 - [Node-RED Installation](#node-red-installation)
-- [Starting Node-RED and Generating settings.js](#starting-node-red-and-generating-settingsjs)
-- [Configuration in settings.js](#configuration-in-settingsjs)
-- [Installing Node-RED Dashboard](#installing-node-red-dashboard)
 - [Access Node-RED](#access-node-red)
 - [Troubleshooting](#troubleshooting)
 - [Securing Node-RED with a Password](#securing-node-red-with-a-password)
+- [Restarting Your Alwaysdata Site](#restarting-your-alwaysdata-site)
 
 ---
 
@@ -22,159 +20,154 @@ This guide provides step-by-step instructions to set up **Node-RED** on **Always
 2. **Navigate to "Web > Sites"**:  
    Go to **Web** and then select **Sites** (or if a page already exists, the setting can be made using the Modify cogwheel icon).
 
-3. **Add a New Site**:  
-   - Click on **"Add a site"**.  
+3. **Add or edit the site**:  
    - Select **Node.js** as the site type.
+   - Use your Alwaysdata address, e.g. `yourusername.alwaysdata.net`.
 
-4. **Configure the Site**:  
-   - **Address**: Enter your desired domain or subdomain (e.g., `yourusername.alwaysdata.net`).  
-   - **Command**:  
-     ```bash
-     node-red
-     ```  
+4. **Configure the command**:
 
-5. **Save the Configuration**: Click **"Create"** to create the site.
+   Replace `USERNAME` with your Alwaysdata username:
 
-6. **Enable SSH Access with a Password**:
+   ```bash
+   /home/USERNAME/node-red-app/node_modules/.bin/node-red --userDir /home/USERNAME/node-red-data --port $PORT -D uiHost=$IP
+   ```
+
+5. **Disable standby**:  
+   Under the site settings, open **Advanced** and set:
+
+   ```text
+   Idle time: 0
+   ```
+
+   `0` means that the site should not stop because of inactivity.
+
+6. **Save the configuration**.
+
+7. **Enable SSH Access with a Password**:
    - Go to **Remote access > SSH** in your Alwaysdata dashboard.
    - Select your SSH user and set a secure password.
-   - Ensure the option "Enable password-based login" is checked.
+   - Ensure the option **Enable password-based login** is checked.
    - Save your changes.
 
 ---
 
 ## SSH Access
 
-To connect to your Alwaysdata server via SSH, use the following command in your terminal:
+To connect to your Alwaysdata server via SSH, use:
 
 ```bash
-ssh your-username@ssh-your-username.alwaysdata.net 
+ssh USERNAME@ssh-USERNAME.alwaysdata.net
 ```
 
-Replace `your-username` with your Alwaysdata username.
+Replace `USERNAME` with your Alwaysdata username.
 
-### Example:
+### Example
 
 ```bash
-ssh phiflip@ssh-phiflip.alwaysdata.net 
+ssh philiot@ssh-philiot.alwaysdata.net
 ```
 
 ---
 
 ## Node-RED Installation
 
-Install Node-RED using `npm`:
+Node-RED and the FlowFuse Dashboard are provided as prepared archives.
 
-```bash
-npm install -g --unsafe-perm node-red
+Download the following files:
+
+```text
+node-red-app.tar.gz
+flowfuse-dashboard.tar.gz
 ```
 
----
+### 1. Copy the packages to Alwaysdata
 
-## Starting Node-RED and Generating settings.js
+If the files are in your Windows Downloads folder:
 
-To configure Node-RED, the `settings.js` file must first be created. This happens the first time Node-RED is started.
+```cmd
+cd %USERPROFILE%\Downloads
+```
 
-1. **Start Node-RED**:  
-   Run the following command to start Node-RED for the first time:
-   ```bash
-   node-red
-   ```
+Then upload both files:
 
-2. **Stop Node-RED**:  
-   Once the application starts, press `Ctrl + C` to stop Node-RED. The `settings.js` file will now be generated in the `.node-red` directory.
+```bash
+scp node-red-app.tar.gz flowfuse-dashboard.tar.gz USERNAME@ssh-USERNAME.alwaysdata.net:~/
+```
 
----
+### 2. Log in again via SSH
 
-## Configuration in settings.js
+```bash
+ssh USERNAME@ssh-USERNAME.alwaysdata.net
+```
 
-1. **Locate the `settings.js` File**:  
-   The file is typically located in the `.node-red` directory:
-   ```bash
-   ~/.node-red/settings.js
-   ```
+### 3. Extract Node-RED and FlowFuse Dashboard
 
-2. **Edit the File**:  
-   Open it with a text editor:
-   ```bash
-   nano ~/.node-red/settings.js
-   ```
+```bash
+cd ~
+tar -xzf node-red-app.tar.gz
+mkdir -p ~/node-red-data
+cd ~/node-red-data
+tar -xzf ~/flowfuse-dashboard.tar.gz
+```
 
-3. **Modify the Host Binding**:  
-   Update the following line to allow Node-RED to bind to all network interfaces:
-   ```javascript
-   uiHost: "::",     // Allows binding to IPv6 and IPv4
-   ```
+### Important
 
-4. **Save and Exit**:  
-   Press `Ctrl + X`, then `Y`, and `Enter` to save your changes.
+Do **not** install Node-RED or Dashboard nodes directly on Alwaysdata using the Palette Manager or `npm install`.
 
----
+The Alwaysdata Free account has only **256 MB RAM**, and the installation can terminate with:
 
-## Installing Node-RED Dashboard
+```text
+Killed
+```
 
-To install the **Node-RED Dashboard**:
-
-1. **Stop Node-RED** if it is running:
-   ```bash
-   pkill node-red
-   ```
-
-2. **Install the Dashboard Package**:
-   ```bash
-   cd ~/.node-red
-   npm install node-red-dashboard
-   ```
-
-3. **Start Node-RED**:
-   ```bash
-   node-red
-   ```
+The prepared Moodle packages avoid this problem.
 
 ---
 
 ## Access Node-RED
 
-After starting Node-RED, you can access it via your Alwaysdata domain:
+Node-RED:
 
-```
-http://your-username.alwaysdata.net
+```text
+https://USERNAME.alwaysdata.net
 ```
 
-### Example:
+FlowFuse Dashboard:
 
+```text
+https://USERNAME.alwaysdata.net/dashboard
 ```
-http://phiflip.alwaysdata.net
+
+### Example
+
+```text
+https://philiot.alwaysdata.net
+https://philiot.alwaysdata.net/dashboard
 ```
 
 ---
 
 ## Troubleshooting
 
-### Common Issues and Solutions
+### Node-RED does not start
 
-#### Node-RED Binding to `127.0.0.1` Instead of `0.0.0.0`
+Check that the site type is **Node.js** and that the command contains your correct Alwaysdata username:
 
-- Ensure `uiHost` in `settings.js` is set to `"::"`:
-
-  ```javascript
-  uiHost: "::",
-  ```
-
-#### NPM Installation Errors
-If npm package installations fail, you must clear the cache afterward to free up space on alwaysdata:
-
-- **Clear NPM Cache**:
-  ```bash
-  npm cache clean --force
-  ```
-
-#### Port Conflicts
-
-If Node-RED fails to start due to port conflicts, specify a custom port in the `settings.js` file:
-```javascript
-uiPort: 1880,  // Replace 1880 with an available port
+```bash
+/home/USERNAME/node-red-app/node_modules/.bin/node-red --userDir /home/USERNAME/node-red-data --port $PORT -D uiHost=$IP
 ```
+
+### Site goes into standby
+
+Under **Web > Sites > Advanced**, set:
+
+```text
+Idle time: 0
+```
+
+### `npm install` or Palette Manager returns `Killed`
+
+Do not install packages directly on the Alwaysdata Free server. Use the prepared Moodle packages instead.
 
 ---
 
@@ -184,25 +177,19 @@ Protecting your Node-RED editor is strongly recommended.
 
 ### 1. Generate a Password Hash
 
-Run the following command and enter your desired password (it will not be displayed while typing):
-
 ```bash
-node-red admin hash-pw
+~/node-red-app/node_modules/.bin/node-red admin hash-pw
 ```
 
-Copy the generated hash string (it starts with `$2b$...`).
-
----
+Enter your desired password. It will not be displayed while typing. Copy the generated hash string.
 
 ### 2. Edit the `settings.js` File
 
-Open your configuration file:
-
 ```bash
-nano ~/.node-red/settings.js
+nano ~/node-red-data/settings.js
 ```
 
-Find the `adminAuth` section (it may be commented out) and replace it with the following:
+Find the `adminAuth` section. Insert the generated hash and uncomment the relevant lines by removing `//`.
 
 ```javascript
 adminAuth: {
@@ -215,32 +202,35 @@ adminAuth: {
 },
 ```
 
-Save and exit (`Ctrl + X`, then `Y`, and `Enter`).
+Save and exit:
 
----
+```text
+Ctrl + X
+Y
+Enter
+```
 
 ### 3. Restart Node-RED
 
-```bash
-node-red
-```
+Restart the Alwaysdata site under **Web > Sites**.
 
-After restarting, open your Node-RED instance again in the browser:
+Then open:
 
-```
-https://your-username.alwaysdata.net
+```text
+https://USERNAME.alwaysdata.net
 ```
 
 You will now be prompted to log in with **admin** and your chosen password.
 
+---
+
 ## Restarting Your Alwaysdata Site
 
-After completing all configurations or changes in **settings.js**,  
-it's best to **restart your Alwaysdata site** to apply everything cleanly.
+After changes in `settings.js`:
 
-1. Go to your **Alwaysdata dashboard**.  
-2. Navigate to **Web → Sites**.  
-3. Locate your Node.js site running Node-RED.  
-4. Click the **Restart (circular arrow) icon** on the right-hand side.  
+1. Go to your **Alwaysdata dashboard**.
+2. Navigate to **Web > Sites**.
+3. Locate your Node.js site running Node-RED.
+4. Click the **Restart** icon on the right-hand side.
 
-This ensures that Node-RED restarts properly and loads the latest configuration.
+This ensures that Node-RED restarts and loads the latest configuration.
