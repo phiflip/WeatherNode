@@ -17,7 +17,7 @@ npm install -g --unsafe-perm node-red
 3. **Additional Node-Red packages**
 
 ```bash
-npm install node-red-dashboard
+npm install @flowfuse/node-red-dashboard
 ```
 ```bash
 npm install node-red-contrib-moment
