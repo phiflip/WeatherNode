@@ -1,106 +1,50 @@
-# Node-RED Deployment Guide for Alwaysdata
+# Node-RED + FlowFuse Dashboard on alwaysdata
 
-This guide provides step-by-step instructions to set up **Node-RED** on **Alwaysdata**, install the prepared **FlowFuse Dashboard** package, configure the site, and access your instance via SSH.
+Run **Node-RED** and **FlowFuse Dashboard 2** on an **alwaysdata Free** account. The prebuilt archives avoid installing npm packages on the server, where the 256 MB RAM limit may terminate the installation.
 
-## Table of Contents
-- [Creating a Node.js Site on Alwaysdata](#creating-a-nodejs-site-on-alwaysdata)
-- [SSH Access](#ssh-access)
-- [Node-RED Installation](#node-red-installation)
-- [Access Node-RED](#access-node-red)
-- [Troubleshooting](#troubleshooting)
-- [Securing Node-RED with a Password](#securing-node-red-with-a-password)
-- [Restarting Your Alwaysdata Site](#restarting-your-alwaysdata-site)
+## 1. Create an alwaysdata site
 
----
+1. Create a free account at [alwaysdata.com](https://www.alwaysdata.com/).
+2. In **Web → Sites**, create a site with:
 
-## Creating a Node.js Site on Alwaysdata
+   | Setting | Value |
+   | --- | --- |
+   | Type | `Node.js` |
+   | Command (temporary) | `node-red` |
+   | Working directory | `/home/USERNAME/` |
+   | Advanced → Idle time | `0` |
 
-1. **Log in to Alwaysdata**: Go to your Alwaysdata dashboard.
+   Replace `USERNAME` with your alwaysdata username. The temporary command is only a placeholder. **The site may not work yet.** You will replace it in step 4.
+3. In **Remote access → SSH**, enable password login and set your SSH password.
 
-2. **Navigate to "Web > Sites"**:  
-   Go to **Web** and then select **Sites** (or if a page already exists, the setting can be made using the Modify cogwheel icon).
+## 2. Download and upload the archives
 
-3. **Add or edit the site**:  
-   - Select **Node.js** as the site type.
-   - Use your Alwaysdata address, e.g. `yourusername.alwaysdata.net`.
+Download both files from the [tested alwaysdata release (October 2026)](https://github.com/phiflip/WeatherNode/releases/tag/alwaysdata-2026-10):
 
-4. **Configure the command**:
+- [node-red-app.tar.gz](https://github.com/phiflip/WeatherNode/releases/download/alwaysdata-2026-10/node-red-app.tar.gz)
+- [flowfuse-dashboard.tar.gz](https://github.com/phiflip/WeatherNode/releases/download/alwaysdata-2026-10/flowfuse-dashboard.tar.gz)
 
-   Replace `USERNAME` with your Alwaysdata username:
-
-   ```bash
-   /home/USERNAME/node-red-app/node_modules/.bin/node-red --userDir /home/USERNAME/node-red-data --port $PORT -D uiHost=$IP
-   ```
-
-5. **Disable standby**:  
-   Under the site settings, open **Advanced** and set:
-
-   ```text
-   Idle time: 0
-   ```
-
-   `0` means that the site should not stop because of inactivity.
-
-6. **Save the configuration**.
-
-7. **Enable SSH Access with a Password**:
-   - Go to **Remote access > SSH** in your Alwaysdata dashboard.
-   - Select your SSH user and set a secure password.
-   - Ensure the option **Enable password-based login** is checked.
-   - Save your changes.
-
----
-
-## SSH Access
-
-To connect to your Alwaysdata server via SSH, use:
-
-```bash
-ssh USERNAME@ssh-USERNAME.alwaysdata.net
-```
-
-Replace `USERNAME` with your Alwaysdata username.
-
-### Example
-
-```bash
-ssh philiot@ssh-philiot.alwaysdata.net
-```
-
----
-
-## Node-RED Installation
-
-Node-RED and the FlowFuse Dashboard are provided as prepared archives.
-
-Download the following files:
-
-```text
-node-red-app.tar.gz
-flowfuse-dashboard.tar.gz
-```
-
-### 1. Copy the packages to Alwaysdata
-
-If the files are in your Windows Downloads folder:
+Open **Windows Command Prompt** and go to the folder where you downloaded the archives. **Replace the example path with your actual folder**:
 
 ```cmd
-cd %USERPROFILE%\Downloads
+cd /d "C:\path\to\Downloads"
 ```
 
-Then upload both files:
+Then upload both files (replace `USERNAME` with your alwaysdata username):
 
-```bash
+```cmd
 scp node-red-app.tar.gz flowfuse-dashboard.tar.gz USERNAME@ssh-USERNAME.alwaysdata.net:~/
 ```
 
-### 2. Log in again via SSH
+**Then connect to your server via SSH:**
 
 ```bash
 ssh USERNAME@ssh-USERNAME.alwaysdata.net
 ```
 
-### 3. Extract Node-RED and FlowFuse Dashboard
+## 3. Extract Node-RED and FlowFuse Dashboard
+
+Run on the **alwaysdata server**:
 
 ```bash
 cd ~
@@ -110,127 +54,84 @@ cd ~/node-red-data
 tar -xzf ~/flowfuse-dashboard.tar.gz
 ```
 
-### Important
+Do **not** use the Palette Manager or `npm install` to install these packages on alwaysdata Free. The installation may fail due to insufficient RAM (`Killed`).
 
-Do **not** install Node-RED or Dashboard nodes directly on Alwaysdata using the Palette Manager or `npm install`.
+## 4. Replace the temporary site command on alwaysdata
 
-The Alwaysdata Free account has only **256 MB RAM**, and the installation can terminate with:
-
-```text
-Killed
-```
-
-The prepared Moodle packages avoid this problem.
-
----
-
-## Access Node-RED
-
-Node-RED:
-
-```text
-https://USERNAME.alwaysdata.net
-```
-
-FlowFuse Dashboard:
-
-```text
-https://USERNAME.alwaysdata.net/dashboard
-```
-
-### Example
-
-```text
-https://philiot.alwaysdata.net
-https://philiot.alwaysdata.net/dashboard
-```
-
----
-
-## Troubleshooting
-
-### Node-RED does not start
-
-Check that the site type is **Node.js** and that the command contains your correct Alwaysdata username:
+Go to **Web → Sites → Edit** and replace the temporary `node-red` command with the following **single line** (replace `USERNAME` twice):
 
 ```bash
 /home/USERNAME/node-red-app/node_modules/.bin/node-red --userDir /home/USERNAME/node-red-data --port $PORT -D uiHost=$IP
 ```
 
-### Site goes into standby
+**Important:** Keep the space before `--port`. Otherwise, Node-RED may use the wrong data directory (for example, `node-red-data--port`) and FlowFuse nodes will be missing.
 
-Under **Web > Sites > Advanced**, set:
+Save and **restart** the site.
 
-```text
-Idle time: 0
-```
+## 5. Open Node-RED
 
-### `npm install` or Palette Manager returns `Killed`
+- **Editor:** `https://USERNAME.alwaysdata.net`
+- **FlowFuse Dashboard:** `https://USERNAME.alwaysdata.net/dashboard`
 
-Do not install packages directly on the Alwaysdata Free server. Use the prepared Moodle packages instead.
+Add a dashboard widget (for example, `ui-button`) and click **Deploy**. FlowFuse Dashboard uses `/dashboard`, not the old `/ui` path.
 
----
+## 6. Protect the Node-RED editor with a password
 
-## Securing Node-RED with a Password
+**Do this only after Node-RED starts successfully.** These steps use two different environments: first the **SSH terminal**, then the **`nano` text editor**.
 
-Protecting your Node-RED editor is strongly recommended.
+### 6.1 Generate a password hash (SSH terminal)
 
-### 1. Generate a Password Hash
+Connect to your alwaysdata server via SSH (see step 2). Enter **only this command** in the terminal:
 
 ```bash
 ~/node-red-app/node_modules/.bin/node-red admin hash-pw
 ```
 
-Enter your desired password. It will not be displayed while typing. Copy the generated hash string.
+1. Type a password and press **Enter**. The password is **not displayed** while you type.
+2. The terminal prints a long password hash (typically starting with `$2b$`).
+3. **Copy the entire hash**. You will paste it into `settings.js` in step 6.2. Do not paste the password itself.
 
-### 2. Edit the `settings.js` File
+### 6.2 Edit `settings.js` (`nano` editor)
+
+In the **SSH terminal**, open the configuration file:
 
 ```bash
 nano ~/node-red-data/settings.js
 ```
 
-Find the `adminAuth` section. Insert the generated hash and uncomment the relevant lines by removing `//`.
+**You are now inside the `nano` text editor, not at the terminal prompt.**
+
+1. Press **Ctrl + W**, type `adminAuth`, and press **Enter** to find the `adminAuth` section.
+2. Uncomment the `adminAuth` block by removing the `//` at the beginning of each relevant line.
+3. Replace the existing example value of `password` with the **hash you copied**. Keep the quotation marks around the hash.
+4. The enabled section should look like the example below. It is **JavaScript configuration**, **not a terminal command**. Edit the existing block rather than adding a duplicate.
 
 ```javascript
 adminAuth: {
     type: "credentials",
     users: [{
         username: "admin",
-        password: "<PASTE-YOUR-HASH-HERE>",
+        password: "PASTE_YOUR_HASH_HERE",
         permissions: "*"
     }]
 },
 ```
 
-Save and exit:
+If your `settings.js` does not have an `adminAuth` section, insert this block **inside** the `module.exports = { ... }` configuration object.
 
-```text
-Ctrl + X
-Y
-Enter
-```
+### 6.3 Save and restart
 
-### 3. Restart Node-RED
+1. In `nano`, press **Ctrl + X**, then **Y**, then **Enter** to save.
+2. In the alwaysdata control panel, open **Web → Sites** and **restart** your Node.js site.
+3. Open `https://USERNAME.alwaysdata.net`. Sign in with username **`admin`** and the **password you chose in step 6.1**, *not* the hash.
 
-Restart the Alwaysdata site under **Web > Sites**.
+**Security note:** `adminAuth` protects the Node-RED editor and Admin API. It does not automatically password-protect the FlowFuse Dashboard itself.
 
-Then open:
+## Troubleshooting
 
-```text
-https://USERNAME.alwaysdata.net
-```
+- **FlowFuse nodes missing:** Check `--userDir`, the space before `--port`, and the file `~/node-red-data/node_modules/@flowfuse/node-red-dashboard/package.json`.
+- **npm reports `Killed`:** Use the release archives instead of installing on the server.
+- **Site stops when idle:** Set **Advanced → Idle time** to `0`.
 
-You will now be prompted to log in with **admin** and your chosen password.
 
----
-
-## Restarting Your Alwaysdata Site
-
-After changes in `settings.js`:
-
-1. Go to your **Alwaysdata dashboard**.
-2. Navigate to **Web > Sites**.
-3. Locate your Node.js site running Node-RED.
-4. Click the **Restart** icon on the right-hand side.
-
-This ensures that Node-RED restarts and loads the latest configuration.
+**References:** [Node-RED](https://nodered.org/docs/), [FlowFuse Dashboard](https://dashboard.flowfuse.com/), [alwaysdata](https://help.alwaysdata.com/).
