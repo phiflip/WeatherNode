@@ -116,14 +116,12 @@ adminAuth: {
     }]
 },
 ```
-
-If your `settings.js` does not have an `adminAuth` section, insert this block **inside** the `module.exports = { ... }` configuration object.
+In `nano`, press **Ctrl + X**, then **Y**, then **Enter** to save.
 
 ### 6.3 Save and restart
 
-1. In `nano`, press **Ctrl + X**, then **Y**, then **Enter** to save.
-2. In the alwaysdata control panel, open **Web → Sites** and **restart** your Node.js site.
-3. Open `https://USERNAME.alwaysdata.net`. Sign in with username **`admin`** and the **password you chose in step 6.1**, *not* the hash.
+1. In the alwaysdata control panel, open **Web → Sites** and **restart** your Node.js site.
+2. Open `https://USERNAME.alwaysdata.net`. Sign in with username **`admin`** and the **password you chose in step 6.1**, *not* the hash.
 
 **Security note:** `adminAuth` protects the Node-RED editor and Admin API. It does not automatically password-protect the FlowFuse Dashboard itself.
 
